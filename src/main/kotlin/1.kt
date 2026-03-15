@@ -387,3 +387,252 @@ fun main() {
 }
  */
 
+/*
+Блок 1: Ввод и Безопасность
+В Kotlin чтение строки с клавиатуры делается одной простой командой: readln().
+Она останавливает программу и ждет, пока пользователь нажмет Enter,
+после чего возвращает строгий тип String.
+
+Если нам нужно число, мы должны конвертировать строку. У строк есть методы .toInt(), .toLong(), .toDouble().
+
+Но есть проблема. Если юзер введет abc, метод .toInt() выбросит исключение NumberFormatException и программа сдохнет.
+
+Для безопасной работы в Kotlin есть "мягкие" методы конвертации: .toIntOrNull().
+Ты уже знаешь, как работать с Nullable-типами. Если конвертация не удалась,
+метод просто вернет null, и программа продолжит работу.
+ */
+
+/*
+fun main() {
+    println("Введите возраст:")
+    val input: String = readln()
+
+    // Пытаемся превратить строку в число
+    val age: Int? = input.toIntOrNull()
+
+    if (age != null) {
+        println("Через 5 лет вам будет ${age+5}")
+    } else {
+        println("Ошибка: вы ввели не число!")
+    }
+}
+*/
+/*
+class GpuNode(val name: String, var vram: Int) {
+    init {
+        require(vram >= 0) {"Памяти нет!"}
+        println("Узел $name поднят. Доступно VRAM: $vram")
+    }
+
+    fun allocateTask(req:Int?): Boolean{
+        val minus = req ?: 0
+
+        if (vram >= minus) {
+            vram -= minus
+            println("$name принят. Остаток VRAM: $vram ГБ")
+            return true
+        }
+        else {
+            println("$name - Отказ, недостачно VRAM")
+            return false
+        }
+    }
+}
+
+fun dispatchTask(cluster:List<GpuNode>, requested: Int?) {
+    for (s in cluster) {
+        if (s.allocateTask(requested)) {
+            return
+        }
+    }
+    println("Задача отклонена, нет свободной памяти!")
+}
+
+fun buildCluster(): MutableList<GpuNode> {
+    val cluster = mutableListOf<GpuNode>()
+
+    while (true) {
+        val next = cluster.size + 1
+        println("Введите объем памяти для Node$next (или 'exit' для выхода)")
+
+        val input = readln()
+
+        if (input == "undo") {
+            if (cluster.isNotEmpty()) {
+                cluster.removeLast()
+                println("ОТМЕНА: Последний узел удален.")
+            } else {
+                println("Ошибка: Кластер пуст, удалять нечего.")
+
+            }
+            continue
+        }
+
+        if (input == "exit") {
+            break
+        }
+
+        val mem = input.toIntOrNull() ?: -1
+        if (mem <= 0){
+            println("Ошибка: введите положительное число!")
+            continue
+        }
+
+
+        val nodeName = "Node$next"
+        cluster.add(GpuNode(nodeName, mem))
+        println("Узел $nodeName на $mem ГБ успешно добавлен в кластер!\n")
+    }
+    return cluster
+}
+
+fun main() {
+    println("Иницализация кластера:")
+    val myCluster = buildCluster()
+    println("\n КЛАСТЕР СОБРАН")
+    print("Всего узлов: ${myCluster.size}")
+}
+*/
+
+
+
+// Блок 2: Арсенал структур данных
+
+// 1. Списки (List) против Массивов (Array)
+// Списки (List, MutableList): Это высокоуровневая абстракция.
+// Тот же MutableList под капотом (на уровне JVM) обычно реализован как ArrayList.
+// Когда ему не хватает места, он создает в памяти новый массив большего размера и копирует туда старые данные.
+// Это удобно, но требует дополнительных ресурсов процессора и памяти.
+//
+// Массивы (Array): Это низкоуровневая структура. Размер массива жестко фиксируется при создании.
+// Ты не можешь сделать .add() или .remove().
+// Зато он лежит в памяти единым сплошным блоком, и доступ к элементам по индексу происходит мгновенно.
+
+// Секретное оружие производительности: Если тебе нужен массив чисел, никогда не используй Array<Int>.
+// В Kotlin для этого есть IntArray (и аналоги DoubleArray, ByteArray).
+// Array<Int> создает тяжелые объекты-обертки для каждого числа, а IntArray хранит голые примитивы.
+// В ML-расчетах разница в потреблении памяти и скорости может достигать десятков раз.
+
+// 2. Множества (Set)
+// Особенность: Хранит только уникальные элементы. Дубликаты игнорируются.
+// Под капотом: Работает на основе хэш-таблиц. Поиск элемента в Set происходит за константное время O(1).
+// Преобразование: Любой список или массив можно мгновенно лишить дубликатов, вызвав у него метод .toSet().
+
+// 3. Кортежи (Tuples): Pair и Triple
+// Часто функция должна вернуть не одно значение, а два (например, статус и само сообщение).
+// Писать для этого отдельный class каждый раз — муторно. Используем Pair (пара) или Triple (тройка).
+
+/*
+fun getSystemStatus(): Pair<Int, String> {
+    return Pair(200, "All system operational")
+}
+
+fun main() {
+    // // Деструктуризация: мы "распаковываем" ответ сразу в две переменные
+    val (code, mesage) = getSystemStatus()
+    println("Код: $code, Текст: $mesage")
+}
+*/
+
+// 4. Срезы (Slices)
+// Стандартная библиотека делает это лаконично:
+//
+//list.take(3) — берет первые 3 элемента.
+//
+//list.takeLast(2) — берет 2 элемента с конца.
+//
+//list.drop(1) — отбрасывает первый элемент и возвращает всё остальное.
+
+class GpuNode(val name: String, var vram: Int) {
+    init {
+        require(vram >= 0) {"Памяти нет!"}
+        println("Узел $name поднят. Доступно VRAM: $vram")
+    }
+
+    fun allocateTask(req:Int?): Boolean{
+        val minus = req ?: 0
+
+        if (vram >= minus) {
+            vram -= minus
+            println("$name принят. Остаток VRAM: $vram ГБ")
+            return true
+        }
+        else {
+            println("$name - Отказ, недостачно VRAM")
+            return false
+        }
+    }
+}
+
+fun dispatchTask(cluster:List<GpuNode>, requested: Int?) {
+    for (s in cluster) {
+        if (s.allocateTask(requested)) {
+            return
+        }
+    }
+    println("Задача отклонена, нет свободной памяти!")
+}
+
+fun buildCluster(): MutableList<GpuNode> {
+    val cluster = mutableListOf<GpuNode>()
+
+    while (true) {
+        val next = cluster.size + 1
+        println("Введите объем памяти для Node$next (или 'exit' для выхода)")
+
+        val input = readln()
+
+        if (input == "undo") {
+            if (cluster.isNotEmpty()) {
+                cluster.removeLast()
+                println("ОТМЕНА: Последний узел удален.")
+            } else {
+                println("Ошибка: Кластер пуст, удалять нечего.")
+
+            }
+            continue
+        }
+
+        if (input == "exit") {
+            break
+        }
+
+        val mem = input.toIntOrNull() ?: -1
+        if (mem <= 0){
+            println("Ошибка: введите положительное число!")
+            continue
+        }
+
+
+        val nodeName = "Node$next"
+        cluster.add(GpuNode(nodeName, mem))
+        println("Узел $nodeName на $mem ГБ успешно добавлен в кластер!\n")
+    }
+    return cluster
+}
+
+fun analyzeLogs(logs:Array<String>): Pair<Int, List<String>> {
+    val mid = logs.toSet()
+    val len = mid.size
+    val top3e = mid.take(3)
+    return Pair(len, top3e)
+}
+
+fun main() {
+    println("Иницализация кластера:")
+    val myCluster = buildCluster()
+    println("\n КЛАСТЕР СОБРАН")
+    print("Всего узлов: ${myCluster.size}\n")
+
+    val rawLogs = arrayOf("Timeout", "GPU_Temp_High", "Timeout", "VRAM_Overflow", "Timeout", "Network_Loss")
+
+    val (len, top3e) = analyzeLogs(rawLogs)
+    println("Найдено уникальных ошибок: $len. Топ-3 для анализа: $top3e")
+}
+
+
+
+
+
+
+
