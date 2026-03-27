@@ -1013,6 +1013,84 @@ fun main() {
 
 // Пример элегантного описания состояния сетевого запроса:
 // Создаем закрытую иерархию
+/*
 sealed class NetworkResponse {
     // Вариант 1: Успех. Хранит внутри данные
+    data class Success(val rawData: String): NetworkResponse()
+
+    // Вариант 2: Ошибка, хранит внутри код ошибки
+    data class Error(val code: Int): NetworkResponse()
+
+    // Вариант 3: Загрузка. Ничего не хранит, просто факт загрузки (поэтому object, а не class)
+    object Loading: NetworkResponse()
 }
+
+// Исчерпывающий when:
+// Когда будем проверять результат через when, компилятор заставит обработать все возможные варианты.
+// Поэтому больше не придется писать ветку else!
+fun handleResponse(response: NetworkResponse) {
+    when (response) {
+        is NetworkResponse.Success -> println("Данные: ${response.rawData}")
+        is NetworkResponse.Error -> println("Упало с кодом: ${response.code}")
+        NetworkResponse.Loading -> println("Грузится")
+        // Ветки else нет. Компилятор знает, что других вариантов просто не существует
+    }
+}
+*/
+/*
+data class Vector3D(val x: Double, val y: Double, val z: Double) {
+    operator fun plus(other: Vector3D): Vector3D {
+        return Vector3D(this.x + other.x, this.y + other.y, this.z + other.z)
+    }
+    operator fun minus(other: Vector3D): Vector3D {
+        return Vector3D(this.x - other.x, this.y - other.y, this.z - other.z)
+        // вычитаем из текущего вектора тот, что передали в аргумент (other)!
+    }
+    operator fun times(other: Vector3D): Vector3D {
+        return Vector3D(this.x * other.x, this.y * other.y, this.z * other.z)
+    }
+
+    fun dotProduct(other: Vector3D): Double {
+        return this.x * other.x + this.y * other.y + this.z * other.z
+    }
+}
+
+sealed class IntersectionResult {
+    object None: IntersectionResult()
+
+    data class SinglePoint(val point: Vector3D): IntersectionResult()
+
+    data class InfiniteLines(val warning: String): IntersectionResult()
+}
+
+fun checkIntersection(id: Int): IntersectionResult {
+    when (id) {
+        1 -> return IntersectionResult.SinglePoint(Vector3D(1.0, 1.0, 1.0))
+        2 -> return IntersectionResult.None
+        else ->  return IntersectionResult.InfiniteLines("Объекты идентичны!")
+    }
+}
+/*
+fun main() {
+    val myRes = checkIntersection(1)
+
+    when(myRes) {
+        is IntersectionResult.SinglePoint -> println("Пересеклись в координатах ${myRes.point}")
+        is IntersectionResult.InfiniteLines -> println("Внимание! : ${myRes.warning}")
+        IntersectionResult.None -> println("Объекты параллельны, пересечений нет")
+    }
+}
+*/
+fun main() {
+    val testIDs = listOf(1,2,3,99)
+    for (id in testIDs) {
+        val myRes = checkIntersection(id)
+        when (myRes) {
+            is IntersectionResult.InfiniteLines -> println("Внимание! : ${myRes.warning}")
+            is IntersectionResult.SinglePoint -> println("Пересеклись в координатах ${myRes.point}")
+            IntersectionResult.None -> println("Объекты параллельны, пересечений нет")
+        }
+    }
+}
+*/
+
